@@ -74,6 +74,7 @@ module Private : sig
   module Annotate_incr = Annotate_incr
   module Computation_watcher = Computation_watcher
   module For_proc = For_proc
+  module Var_id = Var_id
 
   val gather
     :  recursive_scopes:Computation.Recursive_scopes.t

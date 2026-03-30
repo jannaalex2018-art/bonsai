@@ -2,7 +2,7 @@ open! Core
 open! Import
 
 module Elem = struct
-  let keyed ~compare id = stage (fun key -> Keyed.create ~key ~id ~compare)
+  let keyed ~comparator id = stage (fun key -> Keyed.create ~key ~id ~comparator)
 
   type t =
     | Subst_into_invert_lifecycles

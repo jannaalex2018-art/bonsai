@@ -58,8 +58,8 @@ end = struct
          already-bound named value, otherwise you risk losing value sharing. *)
       { Value.value; here }
     | computation_to_perform ->
-      (* Mint a fresh type-id to hold the result of performing this graph modification *)
-      let via : a Type_equal.Id.t = Type_equal.Id.create ~name:"" [%sexp_of: opaque] in
+      (* Mint a fresh id to hold the result of performing this graph modification *)
+      let via : a Var_id.t = Var_id.create () in
       (* Keep hold of the previous graph-modification function *)
       let old_f : type b. b Computation.t Trampoline.t -> b Computation.t Trampoline.t =
         graph.f
@@ -67,9 +67,9 @@ end = struct
       let new_f computation =
         let new_f : type x. x Computation.t -> x Computation.t Trampoline.t = function
           | Return { value = { value = Named (_, id); _ }; here = _ }
-            when Type_equal.Id.same via id ->
+            when Var_id.same via id ->
             (* introduce the optimization {[ let%sub a = foo bar in return a ]} => {[ foo bar ]} *)
-            let T = Type_equal.Id.same_witness_exn via id in
+            let T = Var_id.same_witness_exn via id in
             old_f (Trampoline.return computation_to_perform)
           | eventual_result ->
             (* old_f takes the eventual innermost result, and wraps it in 0+ layers of
@@ -1046,7 +1046,7 @@ module Edge = struct
   let on_change__for_proc2
     ?(here = Stdlib.Lexing.dummy_pos)
     ?sexp_of_model
-    ~trigger
+    ?trigger
     ~equal
     value
     ~callback
@@ -1055,26 +1055,26 @@ module Edge = struct
     perform
       ~here
       graph
-      (Proc.Edge.on_change ~here ?sexp_of_model ~trigger ~equal value ~callback)
+      (Proc.Edge.on_change ~here ?sexp_of_model ?trigger ~equal value ~callback)
   ;;
 
   let on_change
     ?(here = Stdlib.Lexing.dummy_pos)
     ?sexp_of_model
-    ~trigger
+    ?trigger
     ~equal
     value
     ~callback
     graph
     =
     ignore_t
-      (on_change__for_proc2 ~here ?sexp_of_model ~trigger ~equal value ~callback graph)
+      (on_change__for_proc2 ~here ?sexp_of_model ?trigger ~equal value ~callback graph)
   ;;
 
   let on_change'__for_proc2
     ?(here = Stdlib.Lexing.dummy_pos)
     ?sexp_of_model
-    ~trigger
+    ?trigger
     ~equal
     value
     ~callback
@@ -1083,20 +1083,20 @@ module Edge = struct
     perform
       ~here
       graph
-      (Proc.Edge.on_change' ~here ?sexp_of_model ~trigger ~equal value ~callback)
+      (Proc.Edge.on_change' ~here ?sexp_of_model ?trigger ~equal value ~callback)
   ;;
 
   let on_change'
     ?(here = Stdlib.Lexing.dummy_pos)
     ?sexp_of_model
-    ~trigger
+    ?trigger
     ~equal
     value
     ~callback
     graph
     =
     ignore_t
-      (on_change'__for_proc2 ~here ?sexp_of_model ~trigger ~equal value ~callback graph)
+      (on_change'__for_proc2 ~here ?sexp_of_model ?trigger ~equal value ~callback graph)
   ;;
 
   let lifecycle__for_proc2
@@ -1341,6 +1341,19 @@ module Dynamic_scope = struct
   let set' ?(here = Stdlib.Lexing.dummy_pos) var value ~f graph =
     modify ~here var ~change:(fun _ -> value) ~f graph
   ;;
+
+  module Bulk_setter = struct
+    type 'a id = 'a t
+
+    type 'a t = 'a Proc.Dynamic_scope.Bulk_setter.t =
+      | [] : unit t
+      | ( :: ) : ('element id * 'element bonsai_t) * 'rem t -> ('element * 'rem) t
+
+    let set ?(here = Stdlib.Lexing.dummy_pos) hlist ~inside graph =
+      let inside = handle ~here graph ~f:(fun graph -> inside graph) in
+      perform ~here graph (Proc.Dynamic_scope.Bulk_setter.set ~here hlist ~inside)
+    ;;
+  end
 end
 
 module Incr = struct

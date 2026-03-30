@@ -45,7 +45,7 @@ end
 module Dynamic_scope : sig
   val fetch
     :  ?here:Stdlib.Lexing.position
-    -> id:'a Type_equal.Id.t
+    -> id:'a Var_id.t
     -> default:'b
     -> for_some:('a -> 'b)
     -> unit
@@ -53,7 +53,7 @@ module Dynamic_scope : sig
 
   val store
     :  ?here:Stdlib.Lexing.position
-    -> id:'a Type_equal.Id.t
+    -> id:'a Var_id.t
     -> value:'a Value.t
     -> inner:'b Computation.t
     -> unit
@@ -80,7 +80,7 @@ module Edge : sig
 end
 
 module Computation_status : sig
-  type 'input t =
+  type 'input t = 'input Bonsai_private_base.Computation_status.t =
     | Active of 'input
     | Inactive
   [@@deriving sexp_of]
