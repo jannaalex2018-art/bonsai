@@ -50,7 +50,7 @@ end
 type _ without_position =
   | Constant : 'a Lazy.t -> 'a without_position
   | Incr : 'a Incr.t -> 'a without_position
-  | Named : Name_source.t * 'a Type_equal.Id.t -> 'a without_position
+  | Named : Name_source.t * 'a Var_id.t -> 'a without_position
   | Both : 'a t * 'b t -> ('a * 'b) without_position
   | Cutoff :
       { t : 'a t
