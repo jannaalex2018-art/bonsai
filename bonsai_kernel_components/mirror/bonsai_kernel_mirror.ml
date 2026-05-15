@@ -6,6 +6,7 @@ open Bonsai.Let_syntax
 let mirror'
   (type m)
   ?sexp_of_model
+  ?(trigger = `After_display)
   ~equal
   ~(store_set : (m -> unit Effect.t) Bonsai.t)
   ~(store_value : m option Bonsai.t)
@@ -91,7 +92,7 @@ let mirror'
               Effect.Ignore))
   in
   Bonsai.Edge.on_change'
-    ~trigger:`After_display
+    ~trigger
     ~sexp_of_model:[%sexp_of: M2.t]
     ~equal:[%equal: M2.t]
     (let%map store = store_value
@@ -103,6 +104,7 @@ let mirror'
 
 let mirror
   ?sexp_of_model
+  ?trigger
   ~equal
   ~store_set
   ~store_value
@@ -114,6 +116,7 @@ let mirror
   let interactive_value = interactive_value >>| Option.some in
   mirror'
     ?sexp_of_model
+    ?trigger
     ~equal
     ~store_set
     ~store_value

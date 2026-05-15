@@ -261,7 +261,7 @@ module Multi_model = struct
     [%sexp_of: Model.Hidden.t Map.M(K).t]
   ;;
 
-  let find_exn = Map.find_exn
+  let find_exn t key = Map.find_exn t key
   let set = Map.set
   let to_models, of_models = Fn.id, Fn.id
 

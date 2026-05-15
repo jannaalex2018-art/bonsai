@@ -3,7 +3,7 @@
  (libraries balance_list_tree core incr_map incremental
    core_kernel.reversed_list trampoline virtual_dom.ui_effect
    bonsai_concrete.ui_incr bonsai_concrete.metrics
-   bonsai_concrete.ui_time_source uopt)
+   bonsai_concrete.ui_time_source)
  (preprocess
   (pps ppx_jane ppx_pattern_bind))
  (public_name bonsai.private_base))
