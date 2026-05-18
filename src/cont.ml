@@ -1430,6 +1430,33 @@ module Debug = struct
       ~here
   ;;
 
+  let debug_node
+    ~(here : [%call_pos])
+    ~name
+    ?(equal : 'a -> 'a -> bool = phys_equal)
+    ?(sexp_of = sexp_of_opaque)
+    value
+    graph
+    =
+    let pos = Source_code_position.to_string here in
+    let to_string value = Core.Sexp.to_string_hum (sexp_of value) in
+    let callback =
+      Value.return (fun old_value new_value ->
+        (match old_value with
+         | None ->
+           Debug_node_output.output
+             [%string "[%{name}] initialized: %{to_string new_value} (%{pos})"]
+         | Some old_value ->
+           Debug_node_output.output
+             [%string
+               "[%{name}] changed: %{to_string old_value} -> %{to_string new_value} \
+                (%{pos})"]);
+        Effect.Ignore)
+    in
+    Edge.on_change' ~here ~equal value ~callback graph;
+    value
+  ;;
+
   let memo_subscribers (T { subscribers; _ } : _ Memo.t) = subscribers
 end
 
@@ -1495,6 +1522,16 @@ module Let_syntax = struct
 
     let sub ~here:(_ : [%call_pos]) a ~f = f a
     let delay = delay
+
+    let debug_node ~(here : [%call_pos]) ~name ~equal ~sexp_of value =
+      with_global_graph
+        ~f:(fun graph -> Debug.debug_node ~here ~name ~equal ~sexp_of value graph)
+        ~no_graph:(fun () ->
+          raise_s
+            [%message
+              "Let_syntax.debug_node called outside of the context of a graph"
+                (here : Source_code_position.t)]) [@nontail]
+    ;;
   end
 end
 

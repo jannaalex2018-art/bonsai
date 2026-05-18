@@ -5,6 +5,7 @@ module Apply_action_context = Apply_action_context
 module Computation = Computation
 module Computation_status = Computation_status
 module Computation_watcher = Computation_watcher
+module Debug_node_output = Debug_node_output
 module Environment = Environment
 module Fix_id = Fix_id
 module Import = Import

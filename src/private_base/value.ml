@@ -245,8 +245,8 @@ let map7 ~(here : [%call_pos]) t1 t2 t3 t4 t5 t6 t7 ~f =
 ;;
 
 let all ~(here : [%call_pos]) = function
-  | [] -> return []
-  | [ x ] -> map x ~f:(fun x -> [ x ])
+  | [] -> return ~here []
+  | [ x ] -> map ~here x ~f:(fun x -> [ x ])
   | xs ->
     (* [Balance_list_tree] guarantees that if there are any [Node]s, they will all be at
        the start of the list. This means we don't need to match on all possible

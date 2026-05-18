@@ -19,6 +19,8 @@ module Effect := Bonsai.Effect
     [interactive], and [store_set] is called. *)
 val mirror
   :  ?sexp_of_model:('m -> Sexp.t)
+  -> ?trigger:[ `Before_display | `After_display ]
+       (* Controls when the synchronization callback fires. Defaults to [`After_display]. *)
   -> equal:('m -> 'm -> bool)
   -> store_set:('m -> unit Effect.t) Bonsai.t
   -> store_value:'m Bonsai.t
@@ -32,6 +34,8 @@ val mirror
     don't propagate it to the other setter. *)
 val mirror'
   :  ?sexp_of_model:('m -> Sexp.t)
+  -> ?trigger:[ `Before_display | `After_display ]
+       (* Controls when the synchronization callback fires. Defaults to [`After_display]. *)
   -> equal:('m -> 'm -> bool)
   -> store_set:('m -> unit Effect.t) Bonsai.t
   -> store_value:'m option Bonsai.t

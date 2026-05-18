@@ -1154,6 +1154,19 @@ module Debug : sig
     -> local_ graph
     -> 'a t
 
+  (** [debug_node] logs when a [Bonsai.t] changes. By default, output goes to stderr via
+      [Core.Debug.eprintf] (see [Debug_node_output]). When [sexp_of] is provided, the old
+      and new values are included in the log output, otherwise defaults to
+      [sexp_of_opaque]. [equal] defaults to [phys_equal] *)
+  val debug_node
+    :  here:[%call_pos]
+    -> name:string
+    -> ?equal:('a -> 'a -> bool)
+    -> ?sexp_of:('a -> Sexp.t)
+    -> 'a t
+    -> local_ graph
+    -> 'a t
+
   (** [memo_subscribers] prints the internal state for each query. *)
   val memo_subscribers : ('query, _) Memo.t -> 'query Path.Map.t
 end
@@ -1212,6 +1225,14 @@ module Let_syntax : sig
 
     val sub : here:[%call_pos] -> 'a -> f:local_ ('a -> 'b) -> 'b
     val delay : here:[%call_pos] -> f:(local_ graph -> 'a t) -> local_ graph -> 'a t
+
+    val debug_node
+      :  here:[%call_pos]
+      -> name:string
+      -> equal:('a -> 'a -> bool)
+      -> sexp_of:('a -> Sexp.t)
+      -> 'a t
+      -> 'a t
 
     include Mapn with type 'a t := 'a t
     include Arrn with type 'a t := 'a t
